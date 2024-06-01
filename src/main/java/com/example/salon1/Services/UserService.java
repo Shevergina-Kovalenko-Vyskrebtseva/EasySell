@@ -25,7 +25,7 @@ public class UserService {
         if (userRepository.findByEmail(user.getEmail()) != null) return false;
         user.setActive(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.getRoles().add(Role.ROLE_USER);
+        user.getRoles().add(Role.ROLE_ADMIN);
         log.info("User created (email: {})", user.getEmail());
         userRepository.save(user);
         return true;
