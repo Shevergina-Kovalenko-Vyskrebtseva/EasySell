@@ -1,6 +1,7 @@
 package com.example.salon1.Controllers;
 
 import com.example.salon1.Models.Product;
+import com.example.salon1.Models.User;
 import com.example.salon1.Services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,27 +21,38 @@ public class MainController {
     private final ProductService productService;
 
     @GetMapping("/")
-    public String mainpage(@RequestParam(name= "title",required = false) String title, Principal principal,Model model){
-        model.addAttribute("products", productService.listProducts(title));
+    public String mainpage(@RequestParam(name= "searchWord", required = false) String title, @RequestParam(name= "searchCity", required = false) String city, Principal principal,Model model){
+        model.addAttribute("products", productService.listProducts(title, city));
         model.addAttribute("user", productService.getUserByPrincipal(principal));
+        model.addAttribute("searchWord", title);
+        model.addAttribute("searchCity", city);
         return "mainpage";
     }
     @GetMapping("/product/{id}")
-    public String productInfo(@PathVariable int id, Model model){
+    public String productInfo(@PathVariable int id, Model model, Principal principal){
         Product product = productService.getProductById(id);
+        model.addAttribute("user", productService.getUserByPrincipal(principal));
         model.addAttribute("product", product);
         model.addAttribute("images", product.getImages());
+        model.addAttribute("authorProduct", product.getUser());
         return "product-info";
     }
     @PostMapping("/product/create")
     public String productCreate(@RequestParam("file1") MultipartFile file1, @RequestParam("file2") MultipartFile file2,
                                 @RequestParam("file3") MultipartFile file3, Product product, Principal principal) throws IOException {
         productService.saveProduct(principal,product, file1, file2, file3);
-        return "redirect:/";
+        return "redirect:/my/products";
     }
     @PostMapping("/product/delete/{id}")
-    public String productDelete(@PathVariable int id){
-        productService.deleteProduct(id);
-        return "redirect:/";
+    public String productDelete(@PathVariable int id, Principal principal){
+        productService.deleteProduct(productService.getUserByPrincipal(principal), id);
+        return "redirect:/my/products";
+    }
+    @GetMapping("/my/products")
+    public String userProducts(Principal principal, Model model) {
+        User user = productService.getUserByPrincipal(principal);
+        model.addAttribute("user", user);
+        model.addAttribute("products", user.getProducts());
+        return "my-products";
     }
 }

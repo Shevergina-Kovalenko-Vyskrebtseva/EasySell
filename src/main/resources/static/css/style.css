@@ -1,0 +1,19 @@
+.product:hover {
+    transition: 0.5s;
+    transform: scale(1.02);
+}
+
+.product-link {
+    color: #000 !important;
+    text-decoration: none
+}
+.carousel .carousel-item {
+    height: 500px;
+}
+.carousel-item img {
+    object-fit: cover;
+    top: 0;
+    left: 0;
+    min-height: 450px;
+}
+

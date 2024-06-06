@@ -5,13 +5,13 @@ import com.example.salon1.Models.User;
 import com.example.salon1.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.security.Principal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,21 +20,27 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private SmtpMailSender smtpMailSender;
     public boolean createUser(User user) {
         if (userRepository.findByEmail(user.getEmail()) != null) return false;
-        user.setActive(true);
+        user.setActive(false);
+        user.setActivationCode(UUID.randomUUID().toString());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.getRoles().add(Role.ROLE_USER);
         log.info("User created (email: {})", user.getEmail());
         userRepository.save(user);
+        if (!StringUtils.isEmpty(user.getEmail())) {
+            String message = String.format("Добро пожаловать! Перейдите по следующей ссылке для активации аккаунта: http://localhost:8080/activate/%s", user.getActivationCode());
+            smtpMailSender.send(user.getEmail(), "Activation Code", message);
+        }
         return true;
     }
     public List<User> list() {
         return userRepository.findAll();
     }
 
-    public void banUser(Integer id) {
+    public void banUser(int id) {
         User user = userRepository.findById(id).orElse(null);
         if (user != null) {
             if (user.isActive()) {
@@ -60,4 +66,21 @@ public class UserService {
         }
         userRepository.save(user);
     }
+
+    public User getUserByPrincipal(Principal principal) {
+        if (principal == null) return new User();
+        return userRepository.findByEmail(principal.getName());
+    }
+
+    public boolean activateUser(String code) {
+        User user = userRepository.findByActivationCode(code);
+        if (user == null) {
+            return false;
+        }
+        user.setActivationCode(null);
+        user.setActive(true);
+        userRepository.save(user);
+        return true;
+    }
+
 }

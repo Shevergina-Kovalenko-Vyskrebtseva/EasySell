@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 @RequiredArgsConstructor
 public class ImageController {
     private final ImageRepository imageRepository;
+
     @GetMapping("/images/{id}")
     private ResponseEntity<?> getImageById(@PathVariable int id) {
     Image image = imageRepository.findById(id).orElse(null);

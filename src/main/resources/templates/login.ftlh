@@ -1,16 +1,23 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <title>EasySell</title>
-</head>
-<body>
-<h1>EasySell</h1><hr>
-<h4>Авторизация</h4>
-<form action="/login" method="post">
-    Эл. почта: <input type="email" name="username"><br><br>
-    Пароль: <input type="password" name="password"><br><br>
-    <input type="submit" value="Вход"/>
-</form>
-<a href="/registration">Зарегистрироваться</a>
-</body>
-</html>
+<#import "block/template.ftlh" as t>
+<@t.template user!>
+    <h1 style="text-align: center">Авторизация</h1>
+    <hr>
+    <form action="/login" method="post">
+        <#if (message)??>
+            <div class="alert alert-info">
+                ${message}
+            </div>
+        </#if>
+        <div class="form-group">
+            <label for="email">Электронная почта</label>
+            <input type="email" class="form-control" id="email" name="username">
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <input type="password" class="form-control " id="password" name="password">
+        </div>
+        <button type="submit" style="width: 100%" class="btn btn-dark">Войти</button>
+    </form>
+    <hr>
+    <h2>Нет аккаунта EasySell? <a href="/registration">Зарегистрируйся!</a></h2>
+</@t.template>
