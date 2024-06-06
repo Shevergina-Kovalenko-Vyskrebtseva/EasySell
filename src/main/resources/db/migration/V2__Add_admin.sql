@@ -1,0 +1,2 @@
+insert into users (id, email, name, active, password, phone_number) values(2, 'admin@m', 'admin', 1, '$2y$08$DCFo51Eqrqu/3rYp03ex2O/tkKwO5yCbBfqWZcFfwVCkYJTHz.dHa', '86530891567');
+insert into user_role (user_id, roles) values (2, 'ROLE_ADMIN');
